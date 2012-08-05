@@ -1,0 +1,12 @@
+/* ofxDna
+ * André Sier 2011
+ *
+ * http://www.karlsims.com/papers/siggraph91.html
+ *
+ * ofxDna is a c++ class to handle simple genetic 
+ * evolution, mating, crossover of objects genotypes
+ *
+ * licensed under lgpl
+ * copyright 2011 André Sier
+ * astronaut @ s373.net
+ */
