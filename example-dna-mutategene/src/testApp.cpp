@@ -26,11 +26,9 @@ void testApp::update(){
 	y++;
 	if(y>ofGetHeight())
 		y=0;
-	
-	float m = ofMap( mouseX, 0, ofGetWidth(), 0, 1);
-	float n = ofMap( mouseY, 0, ofGetHeight(), 0, 1);
-	dna.mutate(m);
-//	dna.mutate(m, n);
+
+	dna.mutateGene( (int)ofMap(mouseX,0,ofGetWidth(),0,dna.getNum()) ,
+						ofMap(mouseY,0,ofGetHeight(),0,1));
 }
 
 
@@ -48,7 +46,10 @@ void testApp::draw(){
 		ofRect(i, y, 1, 1);
 	}
 	
-		
+	
+	ofDrawBitmapString("fps: " + ofToString(ofGetFrameRate())+
+					   "\ngen: " +ofToString(dna.generation)+ 
+					   "\nmate: " +ofToString(dna.mateMode), 5, 15);
 		
 }
 
@@ -56,6 +57,7 @@ void testApp::draw(){
 void testApp::keyPressed  (int key){
 
 	setup();
+	dna.mateMode = (dna.mateMode+1)%4;
 	
 }
 

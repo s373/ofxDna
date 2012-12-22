@@ -26,12 +26,14 @@ public:
 	int mateMode;
 	int boundsMode;
 	
+	int poolelements;
 
 	// //////// 
 
     ofxDna(){
 		mateMode = 0;
-		boundsMode = 1;
+		boundsMode = 2;
+		poolelements = 0;
 	}
     ~ofxDna(){}
     
@@ -79,10 +81,13 @@ public:
 	/**
 	 * @return num
 	 */
-     int size() {
+	int size() {
 		return num;
 	}
-
+	int getNum() {
+		return num;
+	}
+	
 	/**
 	 * @param dna
 	 * @return
@@ -116,7 +121,10 @@ public:
 	float get(int n) {
 		return dna[n];
 	}
-
+	float getGene(int n) {
+		return dna[n];
+	}
+	
 	ofxDna * setGene(int n, float val) {
 		dna[n] = val;
 		return this;
@@ -223,7 +231,11 @@ public:
 	
 	void bound(){
 		
-		if (boundsMode > 0) {
+		if(boundsMode == 0) {
+			return;
+		}
+		
+		if (boundsMode == 1) {
 			for(int i=0; i<dna.size();i++) {
 				if (dna[i] > 1)
 					dna[i] = 1;
@@ -231,6 +243,16 @@ public:
 					dna[i] = 0;
 			}
 		}
+		if (boundsMode == 2) {
+			for(int i=0; i<dna.size();i++) {
+				while (dna[i] > 1)
+					dna[i] -= 1;
+				while (dna[i] < 0)
+					dna[i] += 1;
+			}
+		}
+		
+		
 		
 	}
 	
