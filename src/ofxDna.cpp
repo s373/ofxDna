@@ -170,8 +170,7 @@ ofxDna * ofxDna::mate(ofxDna & dnaparent, float param) {
 			return crossover3(dnaparent, param);
 		case 3:
 			return crossover4(dnaparent);
-	}
-	bound();
+	}	
 	return this;
 }
 
@@ -183,6 +182,7 @@ ofxDna * ofxDna::crossover1(ofxDna & dnaparent) {
 		else
 			dna[i] = dnaparent.dna[i];
 	}
+	bound();
 	return this;
 }
 
@@ -192,6 +192,7 @@ ofxDna * ofxDna::crossover2(ofxDna & dnaparent, float prob) {
 		if (useOtherGene)
 			dna[i] = dnaparent.dna[i];
 	}
+	bound();
 	return this;
 }
 
@@ -201,6 +202,7 @@ ofxDna * ofxDna::crossover3(ofxDna & dnaparent, float percent) {
 	for (int i = 0; i < num; i++) {
 		dna[i] = per0 * dna[i] + per1 * dnaparent.dna[i];
 	}
+	bound();
 	return this;
 }
 
@@ -208,6 +210,7 @@ ofxDna * ofxDna::crossover4(ofxDna & dnaparent) {
 	for (int i = 0; i < num; i++) {
 		dna[i] = ofRandom(dna[i], dnaparent.dna[i]);
 	}
+	bound();
 	return this;
 }
 
