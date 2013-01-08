@@ -171,6 +171,7 @@ ofxDna * ofxDna::mate(ofxDna & dnaparent, float param) {
 		case 3:
 			return crossover4(dnaparent);
 	}
+	bound();
 	return this;
 }
 
