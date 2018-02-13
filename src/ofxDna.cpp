@@ -3,7 +3,7 @@
  *
  * http://www.karlsims.com/papers/siggraph91.html
  *
- * ofxDna is a c++ class to handle simple genetic 
+ * ofxDna is a c++ class to handle simple genetic
  * evolution, mating, crossover of objects genotypes
  *
  * licensed under lgpl
@@ -18,7 +18,7 @@ ofxDna::ofxDna(){
 	poolelements = 0;
 }
 
-// setup	
+// setup
 
 void ofxDna::setup(int num) {
 	setNum(num);
@@ -28,6 +28,12 @@ void ofxDna::setup(vector<float>* data) {
 	setNum(data->size());
 	for (int i = 0; i < data->size(); i++) {
 		dna[i] = data->at(i);
+	}
+}
+void ofxDna::setup(string &data) {
+	setNum(data.size());
+	for (int i = 0; i < data.size(); i++) {
+		dna[i] = ABS(data[i])/127.0f;//data->at(i);
 	}
 }
 
@@ -46,17 +52,18 @@ void ofxDna::setup(ofxDna & d, float dev) {
 }
 
 
-// //////// 
+// ////////
 
 /**
  * set num genes
- * 
+ *
  * @param n
  * @return
  */
 ofxDna * ofxDna::setNum(int n) {
 	num = n;
 	dna.assign(num, 0);
+	dnastring.assign(num, '\0');
 	return setRandomDNA();
 }
 
@@ -85,11 +92,27 @@ ofxDna * ofxDna::setDna(ofxDna * d) {
 ofxDna * ofxDna::setDna( vector<float>& data) {
 	if (data.size() != dna.size())
 		setNum(data.size());
-	
+
 	for (int i = 0; i < num; i++) {
 		dna[i] = data[i];
 	}
-	
+
+	return this;
+}
+
+/**
+ * @param data
+ * @return
+ */
+ofxDna * ofxDna::setDna(string & data) {
+	if (data.size() != dna.size())
+		setNum(data.size());
+
+	for (int i = 0; i < num; i++) {
+		dna[i] =	ABS(data[i]) / 127.0f;
+		//data[i];
+	}
+
 	return this;
 }
 
@@ -98,6 +121,14 @@ ofxDna * ofxDna::setDna( vector<float>& data) {
  */
 vector<float>* ofxDna::getDna() {
 	return &dna;
+}
+string & ofxDna::getDnaString() {
+
+	for(int i=0; i<num; i++){
+		dnastring[i] = (char) ofMap(dna[i], 0, 1, 1, 127);
+	}
+
+	return dnastring;
 }
 
 float ofxDna::get(int n) {
@@ -137,7 +168,7 @@ ofxDna * ofxDna::mutate(float prob) {
 	return this;
 }
 
-ofxDna * ofxDna::mutate(float prob, float amout) {
+ofxDna * ofxDna::mutate(float prob, float amount) {
 	incGeneration();
 	// for (int i = 0; i < num; i++) {
 	// float rnd = random(1f);
@@ -162,21 +193,22 @@ ofxDna * ofxDna::mate(ofxDna & dnaparent) {
 ofxDna * ofxDna::mate(ofxDna & dnaparent, float param) {
 	incGeneration();
 	switch (mateMode) {
-		case 0:
-			return crossover1(dnaparent);
+		default: case 0:
+			return crossover1(dnaparent); break;
 		case 1:
-			return crossover2(dnaparent, param);
+			return crossover2(dnaparent, param); break;
 		case 2:
-			return crossover3(dnaparent, param);
+			return crossover3(dnaparent, param); break;
 		case 3:
-			return crossover4(dnaparent);
-	}	
+			return crossover4(dnaparent); break;
+	}
 	return this;
 }
 
 ofxDna * ofxDna::crossover1(ofxDna & dnaparent) {
 	int pt = (int) ofRandom(dna.size());
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnaparent.num);
+	for (int i = 0; i < si; i++) {
 		if (i < pt)
 			continue;
 		else
@@ -187,7 +219,9 @@ ofxDna * ofxDna::crossover1(ofxDna & dnaparent) {
 }
 
 ofxDna * ofxDna::crossover2(ofxDna & dnaparent, float prob) {
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnaparent.num);
+
+	for (int i = 0; i < si; i++) {
 		bool useOtherGene = ofRandom(1) > prob;
 		if (useOtherGene)
 			dna[i] = dnaparent.dna[i];
@@ -199,7 +233,9 @@ ofxDna * ofxDna::crossover2(ofxDna & dnaparent, float prob) {
 ofxDna * ofxDna::crossover3(ofxDna & dnaparent, float percent) {
 	float per0 = 1.0f - percent;
 	float per1 = percent;
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnaparent.num);
+
+	for (int i = 0; i < si; i++) {
 		dna[i] = per0 * dna[i] + per1 * dnaparent.dna[i];
 	}
 	bound();
@@ -207,7 +243,8 @@ ofxDna * ofxDna::crossover3(ofxDna & dnaparent, float percent) {
 }
 
 ofxDna * ofxDna::crossover4(ofxDna & dnaparent) {
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnaparent.num);
+	for (int i = 0; i < si; i++) {
 		dna[i] = ofRandom(dna[i], dnaparent.dna[i]);
 	}
 	bound();
@@ -216,11 +253,11 @@ ofxDna * ofxDna::crossover4(ofxDna & dnaparent) {
 
 
 void ofxDna::bound(){
-	
+
 	if(boundsMode == 0) {
 		return;
 	}
-	
+
 	if (boundsMode == 1) {
 		for(int i=0; i<dna.size();i++) {
 			if (dna[i] > 1)
@@ -237,9 +274,9 @@ void ofxDna::bound(){
 				dna[i] += 1;
 		}
 	}
-	
-	
-	
+
+
+
 }
 
 /**
@@ -249,7 +286,7 @@ void ofxDna::bound(){
  */
 ofxDna * ofxDna::mutateGene(int gene, float dev) {
 	dna[gene] += ofRandom(-dev, dev);
-	
+
 	return this;
 }
 
@@ -259,7 +296,9 @@ ofxDna * ofxDna::mutateGene(int gene, float dev) {
  */
 float ofxDna::difference(ofxDna & dnatarget) {
 	float val = 0.f;
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnatarget.num);
+
+	for (int i = 0; i < si; i++) {
 		val += ABS(dnatarget.dna[i] - dna[i]);
 	}
 	return val;
@@ -271,7 +310,9 @@ float ofxDna::difference(ofxDna & dnatarget) {
  */
 vector<float> ofxDna::differenceDNA(ofxDna & dnatarget) {
 	vector <float> dif; dif.assign(dnatarget.num, 0);
-	for (int i = 0; i < num; i++) {
+	int si = MIN(num,dnatarget.num);
+
+	for (int i = 0; i < si; i++) {
 		dif[i] = ABS(dnatarget.dna[i] - dna[i]);
 	}
 	return dif;
@@ -292,6 +333,25 @@ float ofxDna::differenceGene(int gene, ofxDna & dnatarget) {
  */
 float ofxDna::fitness(ofxDna & dnatarget) {
 	return 1.0f - (difference(dnatarget) / num);
+}
+
+/**
+ * @param dnatarget
+ * @return
+ */
+void ofxDna::mix(ofxDna & dnatarget, float amount) {
+
+	int n = num;
+
+	if(num!=dnatarget.num){
+		// cout << "ofxdna mix sizes differ " << num << " " << dnatarget.num << endl;
+		n = MIN(num, dnatarget.num);
+	}
+	float amountb = 1.0f - amount;
+	for (int i = 0; i < n; i++) {
+		dna[i] = amount*dna[i] + amountb * dnatarget.dna[i] ;
+	}
+
 }
 
 void ofxDna::print() {
@@ -331,4 +391,3 @@ ofxDna * ofxDna::setBoundsMode(int boundsMode) {
 int ofxDna::getBoundsMode() {
 	return boundsMode;
 }
-
